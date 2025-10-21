@@ -41,10 +41,11 @@ const start = async () => {
 
   await server.start()
 
+  app.use(cors())
+  app.use(express.json())
+
   app.use(
     '/',
-    cors(),
-    express.json(),
     expressMiddleware(server, {
       context: async ({ req }) => {
         const auth = req ? req.headers.authorization : null
