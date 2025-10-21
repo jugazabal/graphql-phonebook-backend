@@ -1,5 +1,6 @@
 const { ApolloServer } = require('@apollo/server')
 const { startStandaloneServer } = require('@apollo/server/standalone')
+const { v4: uuid } = require('uuid')
 
 let persons = [
   {
@@ -38,6 +39,19 @@ const typeDefs = `
     allPersons: [Person!]!
     findPerson(name: String!): Person
   }
+
+  type Mutation {
+    addPerson(
+      name: String!
+      phone: String
+      street: String!
+      city: String!
+    ): Person
+    editPerson(
+      name: String!
+      phone: String!
+    ): Person
+  }
 `
 
 const resolvers = {
@@ -46,6 +60,28 @@ const resolvers = {
     allPersons: () => persons,
     findPerson: (root, args) =>
       persons.find(p => p.name === args.name)
+  },
+  Mutation: {
+    addPerson: (root, args) => {
+      const existingPerson = persons.find(p => p.name === args.name)
+      if (existingPerson) {
+        throw new Error('Name must be unique')
+      }
+      
+      const person = { ...args, id: uuid() }
+      persons = persons.concat(person)
+      return person
+    },
+    editPerson: (root, args) => {
+      const person = persons.find(p => p.name === args.name)
+      if (!person) {
+        return null
+      }
+
+      const updatedPerson = { ...person, phone: args.phone }
+      persons = persons.map(p => p.name === args.name ? updatedPerson : p)
+      return updatedPerson
+    }
   }
 }
 
