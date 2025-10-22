@@ -7,8 +7,10 @@ const ALL_PERSONS = gql`
     allPersons {
       name
       phone
-      street
-      city
+      address {
+        street
+        city
+      }
       id
     }
   }
@@ -19,8 +21,10 @@ const ADD_PERSON = gql`
     addPerson(name: $name, phone: $phone, street: $street, city: $city) {
       name
       phone
-      street
-      city
+      address {
+        street
+        city
+      }
       id
     }
   }
@@ -30,18 +34,16 @@ const Persons = ({ persons }) => {
   return (
     <div>
       <h2>Persons</h2>
-      {persons.map(person => (
-        <div key={person.id} style={{ marginBottom: '10px', padding: '10px', border: '1px solid #ccc' }}>
-          <strong>{person.name}</strong><br />
-          {person.phone && <>Phone: {person.phone}<br /></>}
-          Address: {person.street}, {person.city}
+      {persons.map(person =>
+        <div key={person.id}>
+          {person.name} {person.phone}
+          <br />
+          {person.address.street}, {person.address.city}
         </div>
-      ))}
+      )}
     </div>
   );
-};
-
-const PersonForm = () => {
+};const PersonForm = () => {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [street, setStreet] = useState('');
