@@ -75,7 +75,7 @@ const typeDefs = `
 
   type Query {
     personCount: Int!
-    allPersons(phone: YesNo): [Person!]!
+    allPersons(phone: YesNo, city: String): [Person!]!
     findPerson(name: String!): Person
     me: User
   }
@@ -112,11 +112,17 @@ const resolvers = {
   Query: {
     personCount: async () => Person.collection.countDocuments(),
     allPersons: async (root, args) => {
-      if (!args.phone) {
-        return Person.find({})
+      const query = {}
+      
+      if (args.phone) {
+        query.phone = { $exists: args.phone === 'YES' }
       }
-  
-      return Person.find({ phone: { $exists: args.phone === 'YES'  }})
+      
+      if (args.city) {
+        query.city = args.city
+      }
+      
+      return Person.find(query)
     },
     findPerson: async (root, args) => Person.findOne({ name: args.name }),
     me: (root, args, context) => {
